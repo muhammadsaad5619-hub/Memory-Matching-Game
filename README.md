@@ -4,8 +4,8 @@ A simple Memory Matching Game built with HTML, CSS, and JavaScript (jQuery). The
 # Play the Game
 
 Click the link below to play the game directly in your browser:
+https://muhammadsaad5619-hub.github.io/Memory-Matching-Game/
 
-Play Memory Matching Game
 # Features
 
 16 cards (8 pairs of emojis) randomly shuffled every game
