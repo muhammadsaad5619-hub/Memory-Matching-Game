@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Memory Matching Game</title>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+body {
+  font-family: Arial;
+  text-align: center;
+}
+#gameBoard {
+  width: 400px;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+}
+.card {
+  width: 80px;
+  height: 80px;
+  margin: 5px;
+  background: #333;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.card.flipped {
+  background: #fff;
+  color: #333;
+}
+#winMessage {
+  display: none;
+  color: green;
+  font-size: 30px;
+  margin-top: 20px;
+}
+</style>
+</head>
+<body>
+<div id="gameHeader">
+  <h2>Memory Matching Game</h2>
+  <p>Moves: <span id="moves">0</span></p>
+  <p>Time: <span id="timer">0</span> seconds</p>
+</div>
+
+<div id="gameBoard"></div>
+
+<div id="winMessage">
+  <h2>You Win!</h2>
+</div>
+
+<audio id="matchSound" src="match.mp3"></audio>
+<audio id="wrongSound" src="wrong.mp3"></audio>
+
+<script>
+$(document).ready(function() {
+  const symbols = ['😀','😂','😍','😎','⭐','💖','🐶','🍀'];
+  let cards = symbols.concat(symbols);   
+  cards.sort(() => 0.5 - Math.random());
+
+  let firstCard = null, secondCard = null, lockBoard = false;
+  let moves = 0, matched = 0;
+  let timer = 0, timerInterval, gameStarted = false;
+
+  cards.forEach(symbol => {
+    let card = $('<div class="card"></div>').data("symbol", symbol);
+    $("#gameBoard").append(card);
+  });
+
+  $(".card").click(function() {
+    if(lockBoard || $(this).hasClass("flipped") || $(this).hasClass("matched")) return;
+    if(!gameStarted){ timerInterval = setInterval(() => { timer++; $("#timer").text(timer); }, 1000); gameStarted = true; }
+    
+    $(this).addClass("flipped").text($(this).data("symbol"));
+    if(!firstCard) firstCard = $(this);
+    else {
+      secondCard = $(this);
+      moves++;
+      $("#moves").text(moves);
+      checkMatch();
+    }
+  });
+
+  function checkMatch() {
+    if(firstCard.data("symbol") === secondCard.data("symbol")) {
+      $("#matchSound")[0].play();
+      firstCard.addClass("matched");
+      secondCard.addClass("matched");
+      matched++;
+      resetTurn();
+      if(matched === symbols.length) { $("#winMessage").fadeIn(); clearInterval(timerInterval); }
+    } else {
+      $("#wrongSound")[0].play();
+      lockBoard = true;
+      setTimeout(() => {
+        firstCard.removeClass("flipped").text("");
+        secondCard.removeClass("flipped").text("");
+        resetTurn();
+      }, 1000);
+    }
+  }
+
+  function resetTurn() {
+    [firstCard, secondCard] = [null, null];
+    lockBoard = false;
+  }
+});
+</script>
+</body>
+</html>
